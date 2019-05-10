@@ -5,80 +5,15 @@ echo ${app_build_root}
 
 #INIT_TARGET_PRODUCT=$1
 #FINAL_TARGET_PRODUCT=$1
-INIT_TARGET_PRODUCT=NX563J
-FINAL_TARGET_PRODUCT=NX563J
+INIT_TARGET_PRODUCT=NX611J
+FINAL_TARGET_PRODUCT=NX611J
 
-#KERNEL_PERF_DEFCONFIG=$2
 KERNEL_PERF_DEFCONFIG=perf
 
-export TARGET_NUBIA_BUILD_TYPE=release
-#export
-
-function usage()
-{
-cat<<EOF
-
-[01;32m===========================================================[0m
-[0m[01;31mFast build kernel[0m
-[0m[01;31mUsage:[0m
-	1. ./zte_build/fastbuild_kernel.sh NX563J
-	1. ./zte_build/fastbuild_kernel.sh NX563J perf
-	2. ./zte_build/fastbuild_kernel.sh NX595J
-	2. ./zte_build/fastbuild_kernel.sh NX595J perf
-	2. ./zte_build/fastbuild_kernel.sh NX610J
-	2. ./zte_build/fastbuild_kernel.sh NX610J perf
-[01;32m===========================================================[0m
-
-EOF
-}
-
-#if [ ! -d "zte_build" ]
-#then
-#	echo
-#	echo -e "\033[01;31mPlease call me in android root dir!!!\033[0m"
-#	echo
-#	exit 1
-#fi
-
-#if [ $# -lt 1 ]
-#then
-#	usage
-#	exit 1
-#fi
-
-################################################################################################
 echo -e "\033[01;32mINIT_TARGET_PRODUCT=${INIT_TARGET_PRODUCT}\033[0m"
-
-
-if [ "${INIT_TARGET_PRODUCT}" == "NX563J" ]
-then
-	FINAL_TARGET_PRODUCT=NX563J
-fi
-
-if [ "${INIT_TARGET_PRODUCT}" == "NX595J" ]
-then
-	FINAL_TARGET_PRODUCT=NX595J
-fi
-
-if [ "${INIT_TARGET_PRODUCT}" == "NX610J" ]
-then
-	FINAL_TARGET_PRODUCT=NX610J
-fi
 echo -e "\033[01;32mFINAL_TARGET_PRODUCT=${FINAL_TARGET_PRODUCT}\033[0m"
 ################################################################################################
 
-
-if [ ! -d "out/target/product/${FINAL_TARGET_PRODUCT}/root" ]
-then
-	echo
-	echo -e "\033[01;31mPlease First Full build kernel!!!\033[0m"
-	echo -e "\033[01;31m./build.sh ${INIT_TARGET_PRODUCT} kernel\033[0m"
-	echo
-	exit 1
-fi
-
-
-################################################################################################
 KERNEL_MODULES_OUT=${app_build_root}/out/target/product/${FINAL_TARGET_PRODUCT}/system/lib/modules
 function mv-modules()
 {
@@ -102,18 +37,25 @@ function clean-module-folder()
 		rm -rf $mpath
 	fi
 }
-################################################################################################
-
 
 ################################################################################################
-export ZTEMT_DTS_NAME="msm8998-v2.1-mtp-${FINAL_TARGET_PRODUCT}.dtb msm8998-v2-mtp-${FINAL_TARGET_PRODUCT}.dtb msm8998-mtp-${FINAL_TARGET_PRODUCT}.dtb"
-echo -e "\033[01;32mZTEMT_DTS_NAME = ${ZTEMT_DTS_NAME}\033[0m"
+export TARGET_KERNEL_APPEND_DTB=true
+
+export TARGET_PRODUCT=NX611J
+#由于kernel/script/Makefile.lib中设计TARGET_PRODUCT环境变量，因此需要设置export TARGET_PRODUCT=NX611J
+#nubia: Set nubia overwrite dtsi file
+#dtc_cpp_flags += -DNUBIA_OVERWRITE_DTSI_FILE=\"../nubia/$(TARGET_PRODUCT)/head.dtsi\"
+
+
+#导出环境变量ZTEMT_DTS_NAME，并指定TARGET_KERNEL_APPEND_DTB到kernel后面
+export ZTEMT_DTS_NAME="sdm636-mtp-${FINAL_TARGET_PRODUCT}.dtb sdm660-mtp-${FINAL_TARGET_PRODUCT}.dtb"
+#echo -e "\033[01;32mZTEMT_DTS_NAME = ${ZTEMT_DTS_NAME}\033[0m"
 
 if [ "${KERNEL_PERF_DEFCONFIG}" == "perf" ]
 then
-	KERNEL_DEFCONFIG=msmcortex-perf-${FINAL_TARGET_PRODUCT}_defconfig
+	KERNEL_DEFCONFIG=sdm660-perf-${FINAL_TARGET_PRODUCT}_defconfig
 else
-	KERNEL_DEFCONFIG=msmcortex-${FINAL_TARGET_PRODUCT}_defconfig
+	KERNEL_DEFCONFIG=sdm660-${FINAL_TARGET_PRODUCT}_defconfig
 fi
 echo -e "\033[01;32mKERNEL_DEFCONFIG = ${KERNEL_DEFCONFIG}\033[0m"
 ################################################################################################
@@ -127,13 +69,6 @@ echo -e "\033[01;32m============================================================
 
 echo -e "\033[01;32mdelete Image.gz-dtb...\033[0m"
 rm -rf out/target/product/${FINAL_TARGET_PRODUCT}/obj/KERNEL_OBJ/arch/arm64/boot
-
-
-#echo -e "\033[01;32mkernelclean...\033[0m"
-#make -C kernel O=../out/target/product/${FINAL_TARGET_PRODUCT}/obj/KERNEL_OBJ ARCH=arm64 CROSS_COMPILE=arm-eabi-  clean
-#make -C kernel O=../out/target/product/${FINAL_TARGET_PRODUCT}/obj/KERNEL_OBJ ARCH=arm64 CROSS_COMPILE=arm-eabi-  mrproper
-#make -C kernel O=../out/target/product/${FINAL_TARGET_PRODUCT}/obj/KERNEL_OBJ ARCH=arm64 CROSS_COMPILE=arm-eabi-  distclean
-
 
 echo -e "\033[01;32mBuilding .config...\033[0m"
 make -C kernel/msm-4.4 O=../../out/target/product/${FINAL_TARGET_PRODUCT}/obj/kernel/msm-4.4 ARCH=arm64 CROSS_COMPILE=aarch64-linux-android- ${KERNEL_DEFCONFIG}
@@ -166,7 +101,6 @@ cp -rf out/target/product/${FINAL_TARGET_PRODUCT}/obj/kernel/msm-4.4/arch/arm64/
 
 echo -e "\033[01;32mmkbootfs ramdisk.img...\033[0m"
 out/host/linux-x86/bin/mkbootfs -d out/target/product/${FINAL_TARGET_PRODUCT}/system out/target/product/${FINAL_TARGET_PRODUCT}/root | out/host/linux-x86/bin/minigzip > out/target/product/${FINAL_TARGET_PRODUCT}/ramdisk.img
-#gunzip -c ramdisk.img | cpio -i
 
 
 ################################################################################################
@@ -178,7 +112,7 @@ echo -e "\033[01;32mmkbootimg boot.img...\033[0m"
 #fi
 #KERNEL_CMDLINE=`echo ${BOARD_KERNEL_CMDLINE#*:=}`
 #echo KERNEL_CMDLINE=$KERNEL_CMDLINE
-out/host/linux-x86/bin/mkbootimg --kernel out/target/product/${FINAL_TARGET_PRODUCT}/kernel --ramdisk out/target/product/${FINAL_TARGET_PRODUCT}/ramdisk.img --base 0x00000000 --pagesize 4096 --cmdline "console=ttyMSM0,115200,n8 androidboot.console=ttyMSM0 earlycon=msm_serial_dm,0xc1b0000 androidboot.hardware=qcom user_debug=31 msm_rtb.filter=0x237 ehci-hcd.park=3 lpm_levels.sleep_disabled=1 sched_enable_hmp=1 sched_enable_power_aware=1 service_locator.enable=1 swiotlb=2048 androidboot.configfs=true androidboot.usbcontroller=a800000.dwc3 buildvariant=eng" --os_version 7.1.1 --os_patch_level 2017-02-05 --output out/target/product/${FINAL_TARGET_PRODUCT}/boot.img
+out/host/linux-x86/bin/mkbootimg --kernel out/target/product/${FINAL_TARGET_PRODUCT}/kernel --ramdisk out/target/product/${FINAL_TARGET_PRODUCT}/ramdisk.img --base 0x00000000 --pagesize 4096 --cmdline "console=ttyMSM0,115200,n8 androidboot.console=ttyMSM0 earlycon=msm_serial_dm,0xc1700000000 androidboot.hardware=qcom user_debug=31 msm_rtb.filter=0x237 ehci-hcd.park=3 lpm_levels.sleep_disabled=1 sched_enable_hmp=1 sched_enable_power_aware=1 service_locator.enable=1 swiotlb=1 androidboot.configfs=true androidboot.usbcontroller=a800000.dwc3 buildvariant=userdebug" --os_version 8.1.0 --os_patch_level 2018-02-05 --output out/target/product/${FINAL_TARGET_PRODUCT}/boot.img
 
 #out/host/linux-x86/bin/mkbootimg  --kernel out/target/product/${FINAL_TARGET_PRODUCT}/kernel --ramdisk out/target/product/${FINAL_TARGET_PRODUCT}/ramdisk.img --cmdline "$KERNEL_CMDLINE" --base 0x00000000 --pagesize 4096  --output out/target/product/${FINAL_TARGET_PRODUCT}/boot.img
 ################################################################################################
