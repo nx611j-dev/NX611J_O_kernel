@@ -1,0 +1,31 @@
+﻿平台：SDM660
+Android：8.1.0
+patch安全级别: 2018-2-5
+userdebug 版本
+
+1、
+NX611J out/target/product/NX611J/root目录缺少以下文件：
+mkdir acct bt_firmware cache config data dev dsp firmware mnt oem persist proc storage sys system vendor
+NX611J out/target/product/NX611J/root目录缺少以下软连接，且ueventd和watchdogd都链接到init
+ln -sf /data/user_de/0/com.android.shell/files/bugreports bugreports
+ln -sf /sbin/charger charger
+ln -sf /sys/kernel/debug d 
+ln -sf system/etc/prop.default default.prop
+ln -sf /system/etc etc
+ln -sf /storage/self/primary sdcard
+
+ln -sf ../init ueventd
+ln -sf ../init watchdogd
+
+2、other.dtsi缺少包含LCD和触屏的dts
+#include "./display.dtsi"
+#include "./touch.dtsi"
+
+3、注意export TARGET_PRODUCT=NX611J，否则无法找到head.dtsi文件
+
+export TARGET_KERNEL_APPEND_DTB=true
+
+export TARGET_PRODUCT=NX611J
+#由于kernel/script/Makefile.lib中设计TARGET_PRODUCT环境变量，因此需要设置export TARGET_PRODUCT=NX611J
+#nubia: Set nubia overwrite dtsi file
+#dtc_cpp_flags += -DNUBIA_OVERWRITE_DTSI_FILE=\"../nubia/$(TARGET_PRODUCT)/head.dtsi\"
