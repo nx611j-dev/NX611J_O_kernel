@@ -29,4 +29,4 @@
 	qcom,msm-mbhc-moist-cfg = <0>, <0>, <3>;
 };
 
-#include NUBIA_OVERWRITE_DTSI_FILE
+#include "NX611J/head.dtsi"

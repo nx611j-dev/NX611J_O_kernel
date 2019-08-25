@@ -38,4 +38,4 @@
 };
 
 
-#include NUBIA_OVERWRITE_DTSI_FILE
+#include "NX611J/head.dtsi"
