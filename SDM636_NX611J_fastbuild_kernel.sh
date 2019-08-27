@@ -98,6 +98,19 @@ fi
 echo -e "\033[01;32mcp -rf Image.gz-dtb kernel...\033[0m"
 cp -rf out/target/product/${FINAL_TARGET_PRODUCT}/obj/kernel/msm-4.4/arch/arm64/boot/Image.gz-dtb out/target/product/${FINAL_TARGET_PRODUCT}/kernel
 
+echo -e "\033[01;32mcreate some directories (some are mount points) and symlinks...\033[0m"
+cd out/target/product/${FINAL_TARGET_PRODUCT}/root
+mkdir -p dev proc sys system data oem acct config storage mnt bt_firmware cache dsp firmware persist vendor
+ln -sf /data/user_de/0/com.android.shell/files/bugreports bugreports
+ln -sf /sbin/charger charger
+ln -sf /sys/kernel/debug d
+ln -sf system/etc/prop.default default.prop
+ln -sf /system/etc etc
+ln -sf /storage/self/primary sdcard
+cd sbin
+ln -sf ../init ueventd
+ln -sf ../init watchdogd
+cd ${app_build_root}
 
 echo -e "\033[01;32mmkbootfs ramdisk.img...\033[0m"
 out/host/linux-x86/bin/mkbootfs -d out/target/product/${FINAL_TARGET_PRODUCT}/system out/target/product/${FINAL_TARGET_PRODUCT}/root | out/host/linux-x86/bin/minigzip > out/target/product/${FINAL_TARGET_PRODUCT}/ramdisk.img
