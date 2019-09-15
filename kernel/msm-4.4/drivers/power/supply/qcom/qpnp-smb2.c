@@ -206,6 +206,7 @@ static int smb2_parse_dt(struct smb2 *chip)
 		pr_err("device tree node missing\n");
 		return -EINVAL;
 	}
+
 	chg->step_chg_enabled = of_property_read_bool(node,
 				"qcom,step-charging-enable");
 
@@ -1172,6 +1173,7 @@ static int smb2_init_batt_psy(struct smb2 *chip)
 	struct power_supply_config batt_cfg = {};
 	struct smb_charger *chg = &chip->chg;
 	int rc = 0;
+
 	batt_cfg.drv_data = chg;
 	batt_cfg.of_node = chg->dev->of_node;
 	chg->batt_psy = power_supply_register(chg->dev,
@@ -1853,7 +1855,6 @@ static int smb2_determine_initial_status(struct smb2 *chip)
 	smblib_handle_usb_source_change(0, &irq_data);
 	smblib_handle_chg_state_change(0, &irq_data);
 	smblib_handle_icl_change(0, &irq_data);
-
 	smblib_handle_batt_temp_changed(0, &irq_data);
 	smblib_handle_wdog_bark(0, &irq_data);
 
@@ -2228,7 +2229,6 @@ static int smb2_probe(struct platform_device *pdev)
 	chg->param = v1_params;
 	chg->debug_mask = &__debug_mask;
 	chg->weak_chg_icl_ua = &__weak_chg_icl_ua;
-
 	chg->mode = PARALLEL_MASTER;
 	chg->irq_info = smb2_irqs;
 	chg->name = "PMI";
