@@ -18,7 +18,8 @@
 *.so
 *.so.dbg
 *.mod.c
-*.i
+# modify for drivers/nubia/touch/hxchipset/*.i
+# *.i
 *.lst
 *.symtypes
 *.order
