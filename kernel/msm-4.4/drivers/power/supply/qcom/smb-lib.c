@@ -663,7 +663,6 @@ static void smblib_uusb_removal(struct smb_charger *chg)
 					false, 0);
 		}
 	}
-
 	vote(chg->pl_disable_votable, PL_DELAY_VOTER, true, 0);
 	vote(chg->awake_votable, PL_DELAY_VOTER, false, 0);
 
@@ -4924,6 +4923,7 @@ int smblib_init(struct smb_charger *chg)
 				rc);
 			return rc;
 		}
+
 		rc = qcom_step_chg_init(chg->step_chg_enabled,
 						chg->sw_jeita_enabled);
 		if (rc < 0) {
@@ -4931,6 +4931,7 @@ int smblib_init(struct smb_charger *chg)
 				rc);
 			return rc;
 		}
+
 		rc = smblib_create_votables(chg);
 		if (rc < 0) {
 			smblib_err(chg, "Couldn't create votables rc=%d\n",

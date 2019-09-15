@@ -447,6 +447,7 @@ static  int msm_rpm_master_stats_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, dent);
 	return 0;
 }
+
 static int msm_rpm_master_stats_remove(struct platform_device *pdev)
 {
 	struct dentry *dent;

@@ -58,7 +58,6 @@ jiffies = jiffies_64;
 #define TRAMP_TEXT
 #endif
 
-
 #ifdef CONFIG_HIBERNATION
 #define HIBERNATE_TEXT					\
 	. = ALIGN(SZ_4K);				\
